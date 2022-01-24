@@ -1,0 +1,162 @@
+<html>
+<head>
+    <style>
+ div{
+     margin : 0; 
+    padding : 0;
+}
+  
+  body {
+      background-color : #6b92b9;
+      /* background-image: url('winter.jpg'); */
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+  }
+  
+  
+  canvas {
+   display : block; 
+  }
+ </style>
+
+ <title>Project_4774_SnowFlakes</title>
+</head>
+  <body>
+   <canvas id = "canvas"
+     style = "border: 0.5px solid Black;">
+   </canvas>
+
+ <script type="text/javascript">
+    var rot = 0;
+    window.onload = function() {
+     
+     // initilize the canvas 
+     var canvas = document.getElementById("canvas");
+     var ctx = canvas.getContext("2d");
+
+     // dimensions 
+     var w = window.innerWidth;
+     var h = window.innerHeight;
+     canvas.width = w;
+     canvas.height = h;
+     
+     // snowflakes 
+     var maxSnowFlakes = 25; // max  ammount of snowflakes
+  
+     var maxR = 15;  //max length of segment 
+     var snowflakes = []; // array for particles
+   
+     
+     for (var i = 0; i < maxSnowFlakes; i++) {
+      snowflakes.push({
+       x : Math.random() * w, // x coord
+       y : Math.random() * h, // y coord
+       r : (Math.random() * maxR)+1, 
+       red:  Math.random() * 155,     
+       gr:  Math.random() * 150 + 100,
+       c: Math.random() * 0.9 +0.1,
+      });
+     }
+     
+
+     // function to draw snowflakes
+     function draw() {
+      ctx.clearRect(0,0,w,h);
+      ctx.beginPath();
+
+      for (var i = 0; i < maxSnowFlakes; i++) {
+	       var p = snowflakes[i];
+	       ctx.moveTo(p.x,p.y); 
+	      SnowFlakes(ctx, p);
+      }
+
+      ctx.fill();
+      update();    
+     }
+     
+
+     var angle = 0; 
+
+     // snowflakes movements
+     function update() {
+      angle += 0.1;
+      
+      for (var i = 0; i < maxSnowFlakes; i++) {
+        var p = snowflakes[i]; 
+        p.y += Math.sin(angle)+ p.r / 2;
+        p.x += Math.sin(angle) * 20;
+      
+
+        // relocates snow flakes to the top when it exits screen
+         if (p.x > w + maxR || p.x < -maxR || p.y > h) {  //x more than max radius
+          if (i%3 > 0) {
+           // for 66% of the flakes 
+             snowflakes[i] = {x:Math.random() * w, y:-maxR, r : p.r, red : p.red, gr : p.gr};   
+            } else {
+             //flakes exit from the right enter from the left
+              if (Math.sin(angle) > 0) {
+                snowflakes[i] = {x:maxR*(-1), y:Math.random()*h, r : p.r, red : p.red, gr : p.gr}; 
+              } else {
+                // enter from right
+                snowflakes[i] = {x:w+maxR,y:Math.random()*h, r : p.r, red : p.red, gr : p.gr};
+              } 
+            } 
+          } 
+        } 
+     }
+   
+      setInterval(draw, 100);
+	
+    
+  }
+  
+  function SnowFlakes(context, p){
+	
+    rot+=0.01;    //rotation angle of snowflake
+    
+	context.lineWidth = 2;
+	context.lineCap = 'round';
+    
+    context.save(); 
+    context.translate(p.x,p.y);   //move center
+    context.rotate(rot);          //rotate flake
+    context.strokeStyle = 'rgba('+p.red+','+p.gr+', 255,1)';       //color of the snowflake
+	context.beginPath();
+    context.moveTo(0,0);        //0.0 is p.x, p.y
+
+		for(var count = 0; count < 6; count++) {      //draw snowflake
+			context.save();
+		    drawSegment(context, p.r, 3*p.r/4,p);         
+		    drawSegment(context, p.r, 3*p.r/4,p);
+		    drawSegment(context, p.r/2, p.r/4,p);
+			drawSegment(context, p.r/2, 0,p);
+			context.restore();
+			context.rotate(Math.PI/3);
+		}
+  
+	 context.restore();
+}
+
+function drawSegment(context, bigSegLength, smallSegLength,p) {
+
+	context.moveTo(0,0);
+	context.lineTo(bigSegLength,0);
+	context.stroke();
+	context.translate(bigSegLength,0);         //every time 00 is the center of big segment
+	if (smallSegLength > 0) {            //two small segments with different direction
+		drawSmallSeg(context, smallSegLength, 1,p);       
+		drawSmallSeg(context, smallSegLength, -1,p);
+	}
+}
+
+function drawSmallSeg(context, smallSegLength, direction,p) {
+	context.save();
+	context.rotate(direction*Math.PI/3);     //dierection of small segment * 60 degrees
+	context.moveTo(0,0);                     //return to center 
+	context.lineTo(smallSegLength,0);
+	context.stroke();
+	context.restore();
+}
+ </script>
+
+</html>
